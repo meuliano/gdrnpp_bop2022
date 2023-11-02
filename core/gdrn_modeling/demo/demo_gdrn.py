@@ -77,8 +77,10 @@ if __name__ == "__main__":
 
         #yolo_predictor.visual_yolo(outputs, rgb_img, {1:'004_sugar_box', 2:'007_tuna_fish_can'}, cls_conf=0.35)
 
-
+        print("Data Preprocessing...")
         data_dict = gdrn_predictor.preprocessing(outputs=outputs, image=rgb_img, depth_img=depth_img)
+        print("Performing Inference...")
         out_dict = gdrn_predictor.inference(data_dict)
+        print("Postprocessing...")
         poses = gdrn_predictor.postprocessing(data_dict, out_dict)
-        gdrn_predictor.gdrn_visualization(batch=data_dict, out_dict=out_dict, image=rgb_img)
+        print("Done")
