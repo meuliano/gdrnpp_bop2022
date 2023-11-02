@@ -1,4 +1,4 @@
-/pretrained_models
+#/pretrained_models
 core/csrc/uncertainty_pnp/ceres/
 .DS_Store
 # output dir
