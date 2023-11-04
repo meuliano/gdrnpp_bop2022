@@ -81,10 +81,13 @@ def init_connector (participant_str, pubsub_str, is_publisher=False):
         input.wait_for_publications()  # wait for at least one matching publication
         return input
 
-def write_pose(writer: rti.Output, mat: np.array):
+def write_pose(writer: rti.Output, mat_marker: np.array, mat_pudding: np.array, mat_banana: np.array):
     print("Writing...")
     writer.instance.set_dictionary({
-        "six_dof_pose":mat.reshape(-1).tolist()})
+        "six_dof_pose_marker":mat_marker.reshape(-1).tolist(),
+        "six_dof_pose_pudding":mat_pudding.reshape(-1).tolist(),
+        "six_dof_pose_banana":mat_banana.reshape(-1).tolist()
+        })
     writer.write()
     writer.wait()
 
@@ -104,7 +107,11 @@ def vis_yolo(output, rgb_image, class_names, cls_conf=0.35):
     return vis_res
 
 if __name__ == "__main__":
-    
+    pose_writer = init_connector(
+        participant_str="HugoParticipantLibrary::SixDofPoseParticipant", 
+        pubsub_str="Pub::PoseWriter", 
+        is_publisher=True)
+
     yolo_predictor = YoloPredictor(
                     exp_name="yolox-x",
                     config_file_path=osp.join(PROJ_ROOT,"configs/yolox/bop_pbr/yolox_x_640_augCozyAAEhsv_ranger_30_epochs_ycbv_pbr_ycbv_bop_test.py"),
@@ -150,27 +157,16 @@ if __name__ == "__main__":
         poses = gdrn_predictor.postprocessing(data_dict, out_dict)
         print("Done")
 
+        if all(k in poses.keys() for k in ('008_pudding_box','040_large_marker','011_banana')):
+            print("All are present")
+            write_pose(pose_writer, poses['040_large_marker'], poses['008_pudding_box'], poses['011_banana'])
+        else:
+            print("not all present")
+
         key = cv2.waitKey(1)
         if key == 27:
             break
-
+    
+    pose_writer.connector.close()
     cam.release()
     cv2.destroyAllWindows()
-
-        # write_pose(pose_writer, poses['008_pudding_box'])
-        # sleep(0.5  )
-        # write_pose(pose_writer, poses['040_large_marker'])
-        # sleep(0.5)
-        # # write_pose(pose_writer, poses['003_cracker_box'])
-        # # sleep(0.5)
-        # # write_pose(pose_writer, poses['005_tomato_soup_can'])
-        # # sleep(0.5)
-        # # write_pose(pose_writer, poses['006_mustard_bottle'])
-        # sleep(0.5)
-        # write_pose(pose_writer, poses['011_banana'])
-        # sleep(0.5)
-        # # write_pose(pose_writer, poses['035_power_drill'])
-
-        # print("Exiting...")
-        # # Wait for all subscriptions to receive the data before exiting
-        # pose_writer.connector.close()
