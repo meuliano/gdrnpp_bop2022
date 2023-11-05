@@ -64,6 +64,7 @@ def get_image_list(rgb_images_path, depth_images_path=None):
 
     return image_names
 
+# TURN INTO A CLASS
 def init_connector (participant_str, pubsub_str, is_publisher=False):
     connector = rti.Connector(
             config_name=participant_str,
@@ -79,6 +80,13 @@ def init_connector (participant_str, pubsub_str, is_publisher=False):
         print("Waiting for publications...")
         input.wait_for_publications()  # wait for at least one matching publication
         return input
+
+def write_pose(writer: rti.Output, mat: np.array):
+    print("Writing...")
+    writer.instance.set_dictionary({
+        "six_dof_pose":mat.reshape(-1).tolist()})
+    writer.write()
+    writer.wait()
 
 if __name__ == "__main__":
     
@@ -108,7 +116,10 @@ if __name__ == "__main__":
 
     image_paths = get_image_list(osp.join(PROJ_ROOT,"datasets/BOP_DATASETS/ycbv/test/" + img_set + "/rgb"))#, osp.join(PROJ_ROOT,"datasets/BOP_DATASETS/ycbv/test/000057/depth"))
     img_dir = osp.join(PROJ_ROOT,"datasets/BOP_DATASETS/ycbv/test/" + img_set + "/rgb/" + img_num + ".png")
+    
+    # img_dir = osp.join(PROJ_ROOT, "datasets/BOP_DATASETS/bananaPic.jpg")
 
+    img_dir = osp.join(PROJ_ROOT, "datasets/BOP_DATASETS/fullPic.jpg")
     img = cv2.imread(img_dir)
     print("YOLO Inference...")
     output = yolo_predictor.inference(img)
@@ -120,4 +131,20 @@ if __name__ == "__main__":
     poses = gdrn_predictor.postprocessing(data_dict, out_dict)
     print("Done")
 
+    write_pose(pose_writer, poses['008_pudding_box'])
+    sleep(0.5  )
+    write_pose(pose_writer, poses['040_large_marker'])
+    sleep(0.5)
+    # write_pose(pose_writer, poses['003_cracker_box'])
+    # sleep(0.5)
+    # write_pose(pose_writer, poses['005_tomato_soup_can'])
+    # sleep(0.5)
+    # write_pose(pose_writer, poses['006_mustard_bottle'])
+    sleep(0.5)
+    write_pose(pose_writer, poses['011_banana'])
+    sleep(0.5)
+    # write_pose(pose_writer, poses['035_power_drill'])
+
+    print("Exiting...")
+     # Wait for all subscriptions to receive the data before exiting
     pose_writer.connector.close()
