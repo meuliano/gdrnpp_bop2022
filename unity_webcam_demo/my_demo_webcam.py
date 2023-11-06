@@ -33,7 +33,9 @@ classes = {
         19: "052_extra_large_clamp",  # [-0.3950, -10.4130, 0.1620]
         20: "061_foam_brick",  # [-0.0805, 0.0805, -8.2435]
 }
-
+# Object Poses we are sending over DDS - order matters
+xml_str = ['six_dof_pose_marker', 'six_dof_pose_pudding', 'six_dof_pose_banana']
+ycbv_str = ['040_large_marker', '008_pudding_box', '011_banana']
 
 def vis_yolo(output, rgb_image, class_names, cls_conf=0.35):
     if output is None:
@@ -48,8 +50,19 @@ def vis_yolo(output, rgb_image, class_names, cls_conf=0.35):
     vis_res = vis(rgb_image, bboxes, scores, cls, cls_conf, class_names)
     return vis_res
 
-import cv2
-import threading
+
+def publish_dds(prepare_for_pose=False):
+    # If the object is not detected, send an identity matrix in its place
+    for k in ycbv_str:
+        if k not in poses.keys():
+            poses[k] = np.eye(4)
+
+    pose_writer.write_dict({
+        'prepare_for_pose':False,
+        xml_str[0]:poses[ycbv_str[0]].reshape(-1).tolist(),
+        xml_str[1]:poses[ycbv_str[1]].reshape(-1).tolist(),
+        xml_str[2]:poses[ycbv_str[2]].reshape(-1).tolist()
+    })
 
 if __name__ == "__main__":
     
@@ -73,9 +86,7 @@ if __name__ == "__main__":
     # Create DDS Publisher
     pose_writer = DDSWriter("SixDofPoseParticipant", "PoseWriter")
 
-    # Object Poses we are sending over DDS - order matters
-    xlm_str = ['six_dof_pose_marker', 'six_dof_pose_pudding', 'six_dof_pose_banana']
-    ycbv_str = ['040_large_marker', '008_pudding_box', '011_banana']
+
 
     # Setup Webcam Capture
     cam = cv2.VideoCapture(0)
@@ -90,12 +101,19 @@ if __name__ == "__main__":
         if not check:
             continue
         # cv2.imshow('video', img)
-
+        
+        pose_writer.write_dict({
+            'prepare_for_pose':True,
+            xml_str[0]:np.eye(4).reshape(-1).tolist(),
+            xml_str[1]:np.eye(4).reshape(-1).tolist(),
+            xml_str[2]:np.eye(4).reshape(-1).tolist()
+        })
+        
         print("YOLO Inference...")
         output = yolo_predictor.inference(img)
 
         # Show output feed with YOLO bounding boxes
-        out = vis_yolo(output[0], img, classes, cls_conf=0.35)
+        out = vis_yolo(output[0], img, classes, cls_conf=0.5)
         cv2.imshow('video', out)
 
         print("GDRN Pose Prediction...")
@@ -110,9 +128,10 @@ if __name__ == "__main__":
 
         print("Writing Poses...")
         pose_writer.write_dict({
-            xlm_str[0]:poses[ycbv_str[0]].reshape(-1).tolist(),
-            xlm_str[1]:poses[ycbv_str[1]].reshape(-1).tolist(),
-            xlm_str[2]:poses[ycbv_str[2]].reshape(-1).tolist()
+            'prepare_for_pose':False,
+            xml_str[0]:poses[ycbv_str[0]].reshape(-1).tolist(),
+            xml_str[1]:poses[ycbv_str[1]].reshape(-1).tolist(),
+            xml_str[2]:poses[ycbv_str[2]].reshape(-1).tolist()
         })
 
         key = cv2.waitKey(1)

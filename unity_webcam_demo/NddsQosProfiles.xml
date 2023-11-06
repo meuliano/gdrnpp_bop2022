@@ -6,6 +6,9 @@
 
     <types>
 		<struct name="SixDofPoseStruct">
+			<!-- prepare for pose = True tells Unity to grab current ACA joint angles -->
+			<member name="prepare_for_pose" type="boolean"/>
+			<!-- prepare for pose = False, completed object detection, send poses -->
 			<member name="six_dof_pose_marker" type="double" arrayDimensions="16"/>
 			<member name="six_dof_pose_pudding" type="double" arrayDimensions="16"/>
 			<member name="six_dof_pose_banana" type="double" arrayDimensions="16"/>
