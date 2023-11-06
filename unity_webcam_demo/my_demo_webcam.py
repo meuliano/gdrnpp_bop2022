@@ -48,6 +48,9 @@ def vis_yolo(output, rgb_image, class_names, cls_conf=0.35):
     vis_res = vis(rgb_image, bboxes, scores, cls, cls_conf, class_names)
     return vis_res
 
+import cv2
+import threading
+
 if __name__ == "__main__":
     
     # Load Pretrained YOLOX PredictionModel
@@ -80,6 +83,7 @@ if __name__ == "__main__":
     cam.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     cam.set(cv2.CAP_PROP_FPS, 30)
+    cam.set(cv2.CAP_PROP_BUFFERSIZE, 0)
 
     while True:
         check, img = cam.read()
