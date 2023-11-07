@@ -10,29 +10,8 @@ from det.yolox.utils import vis
 import numpy as np
 from dds_connector import DDSReader, DDSWriter
 
-classes = {
-        0: "002_master_chef_can",  # [1.3360, -0.5000, 3.5105]
-        1: "003_cracker_box",  # [0.5575, 1.7005, 4.8050]
-        2: "004_sugar_box",  # [-0.9520, 1.4670, 4.3645]
-        3: "005_tomato_soup_can",  # [-0.0240, -1.5270, 8.4035]
-        4: "006_mustard_bottle",  # [1.2995, 2.4870, -11.8290]
-        5: "007_tuna_fish_can",  # [-0.1565, 0.1150, 4.2625]
-        6: "008_pudding_box",  # [1.1645, -4.2015, 3.1190]
-        7: "009_gelatin_box",  # [1.4460, -0.5915, 3.6085]
-        8: "010_potted_meat_can",  # [2.4195, 0.3075, 8.0715]
-        9: "011_banana",  # [-18.6730, 12.1915, -1.4635]
-        10: "019_pitcher_base",  # [5.3370, 5.8855, 25.6115]
-        11: "021_bleach_cleanser",  # [4.9290, -2.4800, -13.2920]
-        12: "024_bowl",  # [-0.2270, 0.7950, -2.9675]
-        13: "025_mug",  # [-8.4675, -0.6995, -1.6145]
-        14: "035_power_drill",  # [9.0710, 20.9360, -2.1190]
-        15: "036_wood_block",  # [1.4265, -2.5305, 17.1890]
-        16: "037_scissors",  # [7.0535, -28.1320, 0.0420]
-        17: "040_large_marker",  # [0.0460, -2.1040, 0.3500]
-        18: "051_large_clamp",  # [10.5180, -1.9640, -0.4745]
-        19: "052_extra_large_clamp",  # [-0.3950, -10.4130, 0.1620]
-        20: "061_foam_brick",  # [-0.0805, 0.0805, -8.2435]
-}
+# Get all class names from classes.txt
+classes = [line.rstrip() for line in open(cur_dir + "/classes.txt")]
 # Object Poses we are sending over DDS - order matters
 xml_str = ['six_dof_pose_marker', 'six_dof_pose_pudding', 'six_dof_pose_banana']
 ycbv_str = ['040_large_marker', '008_pudding_box', '011_banana']
@@ -65,7 +44,7 @@ def publish_dds(prepare_for_pose=False):
     })
 
 if __name__ == "__main__":
-    
+
     # Load Pretrained YOLOX PredictionModel
     yolo_predictor = YoloPredictor(
                     exp_name="yolox-x",
