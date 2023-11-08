@@ -14,8 +14,8 @@ inference_test_output
 
 
 *.ttf
-*.jpg
-*.png
+# *.jpg
+# *.png
 *subsitute.sh
 exclude-file.txt
 git-pipeline.txt
