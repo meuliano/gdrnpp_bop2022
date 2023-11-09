@@ -10,28 +10,16 @@ import open3d as o3d
 import plyfile
 import cv2
 import subprocess
-from stl import stl_rotate
 import glob
-from dds_utils import init_connector, read_dds_connector
 import datetime
 
 script_dir = os.path.dirname(__file__)
-st_framework = os.path.join(script_dir,"..")
-sys.path.append(st_framework)
 
-sys.path.append(os.path.join(st_framework, 'calibration'))
-sys.path.append(os.path.join(st_framework, 'stereo','deep_learning',"PSMNet"))
-sys.path.append(os.path.join(st_framework, 'stereo','deep_learning',"HITNet"))
-sys.path.append(os.path.join(st_framework, 'stereo','deep_learning',"HSMNet"))
-sys.path.append(os.path.join(st_framework, 'stereo','deep_learning',"HSMNet", "hsmnet_utils"))
-sys.path.append(os.path.join(st_framework, 'ground_truth_depth_experiments'))
-sys.path.append(os.path.join(st_framework, 'registration'))
-from calibration.stereo_rectify_images import StereoImageRectifier
-from stereo.deep_learning.PSMNet import predict_img as predict_img_psmnet
-from stereo.deep_learning.HITNet import predict_img as predict_img_hitnet
-from stereo.deep_learning.HSMNet import predict_img as predict_img_hsmnet
-from stereo.deep_learning.HSMNet.hsmnet_utils.preprocess import get_transform
-from ground_truth_depth_experiments import reproject_pointcloud
+from stereo_rectify_images import StereoImageRectifier
+# from stereo.deep_learning.PSMNet import predict_img as predict_img_psmnet
+# from stereo.deep_learning.HITNet import predict_img as predict_img_hitnet
+from depth_mapping import predict_img as predict_img_hsmnet
+from depth_mapping.preprocess import get_transform
 
 DISPLAY_TEXT_THICKNESS = 2.0
 
@@ -157,14 +145,6 @@ def display_depthmap(depth_map, image_left, title):
     #depth_map_rgb = cv2.applyColorMap(depth_map_rgb, cv2.COLORMAP_HOT)
     depth_map_rgb = cv2.applyColorMap(depth_map_rgb, cv2.COLORMAP_HSV)
     cv2.imshow(title_right, depth_map_rgb)
-
-def pcd_remove_outliers (pcd_in, pcd_filter_neighbors = 20, pcd_filter_std=20.0):
-
-    # # outliers removal
-    cl, ind = pcd_in.remove_statistical_outlier(nb_neighbors=pcd_filter_neighbors, std_ratio=pcd_filter_std)
-    pcd_out = pcd_in.select_by_index(ind)
-
-    return pcd_out
 
 
 def o3d_camera_intrinsics (calib_file):
