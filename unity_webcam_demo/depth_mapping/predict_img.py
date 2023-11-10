@@ -1,7 +1,7 @@
 import argparse
 import cv2
 import math
-from depth_mapping import hsm
+from depth_mapping.hsm import HSMNet as hsm
 import numpy as np
 import os
 import skimage.io

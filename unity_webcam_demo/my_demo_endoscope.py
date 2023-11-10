@@ -9,10 +9,11 @@ import cv2
 from det.yolox.utils import vis
 import numpy as np
 from dds_connector import DDSReader, DDSWriter
+from webcam_utils import VideoCapture
 from stereo_rectify_images import StereoImageRectifier
 
 # Stereo Calibration JSON File
-calib_file = cur_dir + '/unity_webcam_demo' + '/SN12398_calib_stereo.json'
+calib_file = cur_dir + '/endoscope_files' + '/SN12398_calib_stereo.json'
 # Get all class names from classes.txt
 classes = [line.rstrip() for line in open(cur_dir + "/classes.txt")]
 # Object Poses we are sending over DDS - order matters
@@ -52,10 +53,10 @@ if __name__ == "__main__":
     yolo_predictor = YoloPredictor(
                     exp_name="yolox-x",
                     config_file_path=osp.join(PROJ_ROOT,"configs/yolox/bop_pbr/yolox_x_640_augCozyAAEhsv_ranger_30_epochs_ycbv_pbr_ycbv_bop_test.py"),
-                    ckpt_file_path=osp.join(PROJ_ROOT,"output/yolox/bop_pbr/yolox_x_640_augCozyAAEhsv_ranger_30_epochs_ycbv_pbr_ycbv_bop_test/model_final.pth"),
+                    ckpt_file_path=osp.join(PROJ_ROOT,"output/yolox/model_final.pth"),
                     fuse=True,
                     fp16=False
-    )
+                    )
     # Load Pretrained GDRN Prediction Model
     gdrn_predictor = GdrnPredictor(
                     config_file_path=osp.join(PROJ_ROOT,"configs/gdrn/ycbv/convnext_a6_AugCosyAAEGray_BG05_mlL1_DMask_amodalClipBox_classAware_ycbv.py"),
@@ -63,28 +64,21 @@ if __name__ == "__main__":
                     # ckpt_file_path=osp.join(PROJ_ROOT,"output/gdrn/ycbv/model_tomato_soup_can.pth"),
                     camera_json_path=osp.join(PROJ_ROOT,"datasets/BOP_DATASETS/ycbv/camera_cmu.json"),
                     path_to_obj_models=osp.join(PROJ_ROOT,"datasets/BOP_DATASETS/ycbv/models")
-    )
+                    )
 
     # Create DDS Publisher
     pose_writer = DDSWriter("SixDofPoseParticipant", "PoseWriter")
 
-    # Setup Image De-Interlacing and Rectification
+    # Setup Image De-Interlacing and Rectification (alpha = 0 crops image)
     img_rectifier = StereoImageRectifier(calib_file, alpha=0.0, resolution_multiplier=1.0, aspect_preserve=2.0)
 
     # Setup Webcam Capture
-    cam = cv2.VideoCapture(0)
-    cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M','J','P','G'))
-    cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-    cam.set(cv2.CAP_PROP_FPS, 30)
-    cam.set(cv2.CAP_PROP_BUFFERSIZE, 0)
+    cam = VideoCapture(0)
 
     while True:
 
         # Read from Webcam
-        check, img = cam.read()
-        if not check:
-            continue
+        img = cam.read()
         
         # Send DDS Message for Starting Pose Detection
         pose_writer.write_dict({

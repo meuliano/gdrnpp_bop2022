@@ -1,0 +1,98 @@
+{
+    "type": "stereo_camera_calibration",
+    "left": {
+        "type": "single_camera_calibration",
+        "resolution": [
+            1920,
+            540
+        ],
+        "K": [
+            [
+                1501.8374344206009,
+                0.0,
+                958.2359008789062
+            ],
+            [
+                0.0,
+                1501.8374344206009,
+                250.1335220336914
+            ],
+            [
+                0.0,
+                0.0,
+                1.0
+            ]
+        ],
+        "distortion": {
+            "model": "coefficients_opencv",
+            "coefficients": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
+    "right": {
+        "type": "single_camera_calibration",
+        "resolution": [
+            1920,
+            540
+        ],
+        "K": [
+            [
+                1501.8374344206009,
+                0.0,
+                958.2359008789062
+            ],
+            [
+                0.0,
+                1501.8374344206009,
+                250.1335220336914
+            ],
+            [
+                0.0,
+                0.0,
+                1.0
+            ]
+        ],
+        "distortion": {
+            "model": "coefficients_opencv",
+            "coefficients": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
+    "CamLeft_T_CamRight": [
+        [
+            1.0,
+            0.0,
+            0.0,
+            0.005971618446684174
+        ],
+        [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+        ],
+        [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+        ],
+        [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+        ]
+    ],
+    "reprojection_error_rms_pixels": 0
+}
