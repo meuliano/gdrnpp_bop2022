@@ -96,7 +96,7 @@
 
 	<participant_library name="HugoParticipantLibrary">
 		<domain_participant name="SixDofPoseParticipant"
-            domain_id="31"
+            domain_id="0"
             domain_ref="EinsteinCommunicationDomainLibrary::SixDofPoseDomain">
 			<subscriber name="Sub">
 				<data_reader topic_ref="SixDofPose" name="PoseReader">

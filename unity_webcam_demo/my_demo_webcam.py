@@ -67,7 +67,7 @@ if __name__ == "__main__":
     pose_writer = DDSWriter("SixDofPoseParticipant", "PoseWriter")
 
     # Setup Webcam Capture
-    cam = VideoCapture(0)
+    cam = VideoCapture(0, 640, 480)
 
     while True:
 

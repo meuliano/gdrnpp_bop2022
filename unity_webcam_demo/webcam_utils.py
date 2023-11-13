@@ -3,11 +3,11 @@ import cv2, queue, threading, time
 # bufferless VideoCapture
 class VideoCapture:
 
-  def __init__(self, name):
+  def __init__(self, name, width=1920, height=1080):
     self.cap = cv2.VideoCapture(name)
     self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M','J','P','G'))
-    self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-    self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+    self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     self.cap.set(cv2.CAP_PROP_FPS, 30)
     self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     self.q = queue.Queue()

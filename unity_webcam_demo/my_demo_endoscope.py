@@ -62,7 +62,7 @@ if __name__ == "__main__":
                     config_file_path=osp.join(PROJ_ROOT,"configs/gdrn/ycbv/convnext_a6_AugCosyAAEGray_BG05_mlL1_DMask_amodalClipBox_classAware_ycbv.py"),
                     ckpt_file_path=osp.join(PROJ_ROOT,"output/gdrn/ycbv/model_final_wo_optim.pth"),
                     # ckpt_file_path=osp.join(PROJ_ROOT,"output/gdrn/ycbv/model_tomato_soup_can.pth"),
-                    camera_json_path=osp.join(PROJ_ROOT,"datasets/BOP_DATASETS/ycbv/camera_cmu.json"),
+                    camera_json_path=cur_dir + '/endoscope_files' + '/SN12398_calib_stereo_rectified.json',#osp.join(PROJ_ROOT,"datasets/BOP_DATASETS/ycbv/camera_cmu.json"),
                     path_to_obj_models=osp.join(PROJ_ROOT,"datasets/BOP_DATASETS/ycbv/models")
                     )
 
@@ -80,6 +80,23 @@ if __name__ == "__main__":
         # Read from Webcam
         img = cam.read()
         
+        
+
+        # Split and Rectify the images
+        (img_right, img_left) = img_rectifier.split_and_rectify_stereo_image(img)
+
+        
+
+        # image_left =  img[1::2, :, :]
+        
+        # Resize Left Image to match Training Data
+        # Use cropped portion of image (convert 1920x1080 to 1440x1080 that is same aspect ratio as 640x480)
+        img_resize = cv2.resize(img_left[:, 240:1680], dsize=(640, 480), interpolation=cv2.INTER_CUBIC)
+
+        # YOLO Inference
+        output = yolo_predictor.inference(img_resize)
+
+        # THIS IS HAPPENING TOO SOON AND UNITY ISN'T ALWAYS SEEING THIS MESSAGE
         # Send DDS Message for Starting Pose Detection
         pose_writer.write_dict({
             'prepare_for_pose':True,
@@ -87,15 +104,6 @@ if __name__ == "__main__":
             xml_str[1]:np.eye(4).reshape(-1).tolist(),
             xml_str[2]:np.eye(4).reshape(-1).tolist()
         })
-
-        # Split and Rectify the images
-        (img_right, img_left) = img_rectifier.split_and_rectify_stereo_image(img)
-        
-        # Resize Left Image to match Training Data
-        img_resize = cv2.resize(img_right, dsize=(640, 480), interpolation=cv2.INTER_CUBIC)
-
-        # YOLO Inference
-        output = yolo_predictor.inference(img_resize)
 
         # Show output feed with YOLO bounding boxes
         out = vis_yolo(output[0], img_resize, classes, cls_conf=0.5)

@@ -74,33 +74,6 @@ class GdrnPredictor():
         self.cfg = self.setup(self.args)
         self.objs_dir = path_to_obj_models
 
-        #set your trained object names
-        # self.objs = {
-        #         1: "01_bear",
-        #         2: "2",
-        #         3: "03_round_car",
-        #         4: "04_thin_cow",
-        #         5: "5", 6: "6", 7: "7",
-        #         8: "08_green_rabbit",
-        #         9: "09_holepuncher",
-        #         10: "10",
-        #         11: "11",
-        #         12: "12",
-        #         13: "13", 14: "14",
-        #         15: "15",
-        #         16: "16",
-        #         17: "17",
-        #         18: "18_jaffa_cakes_box",
-        #         19: "19_minions",  # small yellow man
-        #         20: "20", 21: "21",
-        #         22: "22_rhinoceros",  # xi niu
-        #         23: "23_dog",
-        #         24: "24", 25: "25", 26: "26", 27: "27", 28: "28",
-        #         29: "29_tea_box",
-        #         30: "30", 31: "31",
-        #         32: "32_car",
-        #         33: "33_yellow_rabbit",
-        # }
         self.objs = {
                 1: "002_master_chef_can",  # [1.3360, -0.5000, 3.5105]
                 2: "003_cracker_box",  # [0.5575, 1.7005, 4.8050]
@@ -130,11 +103,20 @@ class GdrnPredictor():
 
         with open(camera_json_path) as f:
             camera_json = json.load(f)
+
+            myK = camera_json['left']['K']
+
+            # Divide by scale from 1080 to 480, add center offset of 240px
             self.cam = np.asarray([
-                [camera_json['fx'], 0., camera_json['cx']],
-                [0., camera_json['fy'], camera_json['cy']],
+                [myK[0][0]/2.25, 0., (myK[0][2]-240)/2.25],
+                [0., myK[1][1]/2.25, myK[1][2]*2.0/2.25],
                 [0., 0., 1.]])
-            self.depth_scale = camera_json['depth_scale']
+            
+            # self.cam = np.asarray([
+            #     [camera_json['fx'], 0., camera_json['cx']],
+            #     [0., camera_json['fy'], camera_json['cy']],
+            #     [0., 0., 1.]])
+            self.depth_scale = 0.1 #camera_json['depth_scale']
 
         model_lite = Lite(
             accelerator="gpu",
