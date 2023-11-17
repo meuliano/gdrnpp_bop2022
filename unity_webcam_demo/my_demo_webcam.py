@@ -3,16 +3,16 @@ import sys
 cur_dir = osp.dirname(osp.abspath(__file__))
 PROJ_ROOT = osp.normpath(osp.join(cur_dir, ".."))
 sys.path.insert(0, PROJ_ROOT)
-from core.gdrn_modeling.demo.predictor_yolo import YoloPredictor
-from core.gdrn_modeling.demo.predictor_gdrn import GdrnPredictor
+from predictor_yolo import YoloPredictor
+from predictor_gdrn import GdrnPredictor
 import cv2
 from det.yolox.utils import vis
 import numpy as np
-from dds_connector import DDSReader, DDSWriter
-from webcam_utils import VideoCapture
+from utils.dds_connector import DDSWriter
+from utils.webcam_utils import VideoCapture
 
 # Get all class names from classes.txt
-classes = [line.rstrip() for line in open(cur_dir + "/classes.txt")]
+classes = [line.rstrip() for line in open(cur_dir + "/utils/classes.txt")]
 # Object Poses we are sending over DDS - order matters
 xml_str = ['six_dof_pose_marker', 'six_dof_pose_pudding', 'six_dof_pose_banana']
 ycbv_str = ['040_large_marker', '008_pudding_box', '011_banana']
@@ -60,7 +60,8 @@ if __name__ == "__main__":
                     ckpt_file_path=osp.join(PROJ_ROOT,"output/gdrn/ycbv/model_final_wo_optim.pth"),
                     # ckpt_file_path=osp.join(PROJ_ROOT,"output/gdrn/ycbv/model_tomato_soup_can.pth"),
                     camera_json_path=osp.join(PROJ_ROOT,"datasets/BOP_DATASETS/ycbv/camera_cmu.json"),
-                    path_to_obj_models=osp.join(PROJ_ROOT,"datasets/BOP_DATASETS/ycbv/models")
+                    path_to_obj_models=osp.join(PROJ_ROOT,"datasets/BOP_DATASETS/ycbv/models"),
+                    is_endoscope=False
                     )
 
     # Create DDS Publisher
@@ -72,13 +73,6 @@ if __name__ == "__main__":
     while True:
 
         img = cam.read()
-        
-        pose_writer.write_dict({
-            'prepare_for_pose':True,
-            xml_str[0]:np.eye(4).reshape(-1).tolist(),
-            xml_str[1]:np.eye(4).reshape(-1).tolist(),
-            xml_str[2]:np.eye(4).reshape(-1).tolist()
-        })
         
         print("YOLO Inference...")
         output = yolo_predictor.inference(img)
@@ -99,7 +93,6 @@ if __name__ == "__main__":
 
         print("Writing Poses...")
         pose_writer.write_dict({
-            'prepare_for_pose':False,
             xml_str[0]:poses[ycbv_str[0]].reshape(-1).tolist(),
             xml_str[1]:poses[ycbv_str[1]].reshape(-1).tolist(),
             xml_str[2]:poses[ycbv_str[2]].reshape(-1).tolist()

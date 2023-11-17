@@ -1,4 +1,5 @@
 import os
+import os.path as osp
 import sys
 import time
 import numpy as np
@@ -14,8 +15,10 @@ import glob
 import datetime
 
 script_dir = os.path.dirname(__file__)
+PROJ_ROOT = osp.normpath(osp.join(script_dir, "../.."))
+sys.path.insert(0, PROJ_ROOT)
 
-from stereo_rectify_images import StereoImageRectifier
+from unity_webcam_demo.stereo_rectify_images import StereoImageRectifier
 # from stereo.deep_learning.PSMNet import predict_img as predict_img_psmnet
 # from stereo.deep_learning.HITNet import predict_img as predict_img_hitnet
 from depth_mapping import predict_img as predict_img_hsmnet
@@ -151,7 +154,6 @@ def o3d_camera_intrinsics (calib_file):
     camera_intrinsic.intrinsic_matrix = [[fx, 0, cx], [0, fy, cy], [0, 0, 1]]
 
     return camera_intrinsic
-
 
 def run_live_depthmapping(dev_name, model, args):
 
